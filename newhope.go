@@ -15,7 +15,7 @@ package newhope
 
 import (
 	"io"
-
+	
 	"golang.org/x/crypto/sha3"
 )
 
@@ -89,6 +89,28 @@ type PublicKeyAlice struct {
 // PrivateKeyAlice is Alice's New Hope private key.
 type PrivateKeyAlice struct {
 	sk poly
+}
+
+// Returns the Private Key as Bytes. This is useful to store it
+// (useful if NewHope should be used as cryptosystem like IES
+// rather than a key exchange).
+func (k *PrivateKeyAlice) GetBytes(buf []byte) []byte {
+	if cap(buf)<PolyBytes {
+		buf = make([]byte,PolyBytes)
+	}else{
+		buf = buf[:PolyBytes]
+	}
+	k.sk.toBytes(buf)
+	return buf
+}
+
+// Imports a Private key, that has been exportet using 'GetBytes'.
+func (k *PrivateKeyAlice) SetBytes(buf []byte) bool {
+	if len(buf)<PolyBytes {
+		return false
+	}
+	k.sk.fromBytes(buf)
+	return true
 }
 
 // Reset clears all sensitive information such that it no longer appears in
